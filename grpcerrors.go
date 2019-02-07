@@ -40,7 +40,7 @@ func (r *Registry) ToGrpc(err error) error {
 	}
 	return err
 }
- 
+
 // FromGrpc converts a gRPC error back to the registered error type. If the
 // error isn't a gRPC error, or the status code isn't registered, the error
 // is returned as is.
@@ -59,11 +59,19 @@ func (r *Registry) FromGrpc(err error) error {
 	return rerr
 }
 
-var defaultRegistry Registry
+var defaultRegistry = NewRegistry()
 
 // Register registers an error code with the default registry.
-func Register(code codes.Code, err error) {
-	defaultRegistry.Register(code, err)
+func Register(code codes.Code, err error) error {
+	return defaultRegistry.Register(code, err)
+}
+
+// MustRegister registers an error code with the default registry and panics
+// if the code as already registered.
+func MustRegister(code codes.Code, err error) {
+	if err := defaultRegistry.Register(code, err); err != nil {
+		panic(err)
+	}
 }
 
 // ToGrpc converts the given error to a gRPC error using the default registry.
