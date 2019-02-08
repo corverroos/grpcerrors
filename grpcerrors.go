@@ -29,10 +29,18 @@ func (r *Registry) Register(code codes.Code, err error) error {
 	return nil
 }
 
-// ToGrpc converts the given error to a gRPC error by looking the error's code
+// MustRegister registers an error code with the registry and panics
+// if the code as already registered.
+func (r *Registry) MustRegister(code codes.Code, err error) {
+	if err := r.Register(code, err); err != nil {
+		panic(err)
+	}
+}
+
+// ToProto converts the given error to a gRPC error by looking the error's code
 // up in the registry. If the error hasn't been registered, the error is
 // returned unchanged.
-func (r *Registry) ToGrpc(err error) error {
+func (r *Registry) ToProto(err error) error {
 	for k, v := range r.errors {
 		if v == err {
 			return status.Error(k, err.Error())
@@ -41,10 +49,10 @@ func (r *Registry) ToGrpc(err error) error {
 	return err
 }
 
-// FromGrpc converts a gRPC error back to the registered error type. If the
+// FromProto converts a gRPC error back to the registered error type. If the
 // error isn't a gRPC error, or the status code isn't registered, the error
 // is returned as is.
-func (r *Registry) FromGrpc(err error) error {
+func (r *Registry) FromProto(err error) error {
 	if err == nil {
 		return nil
 	}
@@ -69,18 +77,16 @@ func Register(code codes.Code, err error) error {
 // MustRegister registers an error code with the default registry and panics
 // if the code as already registered.
 func MustRegister(code codes.Code, err error) {
-	if err := defaultRegistry.Register(code, err); err != nil {
-		panic(err)
-	}
+	defaultRegistry.MustRegister(code, err)
 }
 
-// ToGrpc converts the given error to a gRPC error using the default registry.
-func ToGrpc(err error) error {
-	return defaultRegistry.ToGrpc(err)
+// ToProto converts the given error to a gRPC error using the default registry.
+func ToProto(err error) error {
+	return defaultRegistry.ToProto(err)
 }
 
-// FromGrpc converts a gRPC back to a registered error using the default
+// FromProto converts a gRPC back to a registered error using the default
 // registry.
-func FromGrpc(err error) error {
-	return defaultRegistry.FromGrpc(err)
+func FromProto(err error) error {
+	return defaultRegistry.FromProto(err)
 }

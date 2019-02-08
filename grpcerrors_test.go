@@ -22,15 +22,15 @@ func TestRegistry(t *testing.T) {
 		t.Error("Expected success, got:", err)
 	}
 
-	e11 := r.ToGrpc(e1)
+	e11 := r.ToProto(e1)
 	if e11 == e1 {
 		t.Errorf("Expected different errors")
 	}
-	e12 := r.FromGrpc(e11)
+	e12 := r.FromProto(e11)
 	if e12 != e1 {
 		t.Error("Expected same error, got:", e12, e1)
 	}
-	e13 := r.FromGrpc(e1)
+	e13 := r.FromProto(e1)
 	if e13 != e1 {
 		t.Error("Expected same error, got:", e13, e1)
 	}
